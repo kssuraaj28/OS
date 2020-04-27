@@ -1,5 +1,5 @@
-#ifndef phymem_h
-#define phymem_h
+#ifndef _KERNEL_PHYMEM_H
+#define _KERNEL_PHYMEM_H
 
 #include <stdint.h>
 #include <stdbool.h>

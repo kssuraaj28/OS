@@ -15,22 +15,41 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
-CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
+CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -Werror
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude/kernel
 LDFLAGS:=$(LDFLAGS) -Tlinker.ld
 LIBS:=$(LIBS) -nostdlib  -lgcc -lk
 
+# TODO: remove all x86.asm
+KERNEL_SOURCES :=  \
+driver/ATA.c \
+driver/PIC.c \
+driver/tty.c \
+driver/keyboard.c \
+driver/timer.c \
+driver/cursor.asm \
+mem/virtmem.c \
+mem/phymem.c \
+hal/inthandling.c \
+hal/gdt.c \
+hal/tss.c \
+hal/x86.asm \
+hal/interruptstubs.asm \
+kernel/init.c \
+kernel/kshell.c \
+kernel/kernel.c \
+kernel/entry.asm \
+kernel/x86.asm \
 
-C_SOURCES := $(wildcard */*.c)  #TODO: Expand all this
-ASM_SOURCES:= $(wildcard */*.asm)
-C_OBJS:= ${C_SOURCES:.c=.o}
-ASM_OBJS:= ${ASM_SOURCES:.asm=.o}
 
-KERNEL_OBJS:= \
-$(C_OBJS)\
-$(ASM_OBJS)\
+KERNEL_OBJS:= ${KERNEL_SOURCES:.c=.o} 
+KERNEL_OBJS:= ${KERNEL_OBJS:.asm=.o} 
 
 
+
+
+
+# TODO: Add -MD option for nasm
 #OBJS=\
 #$(wildcard startup/*.o)\
 #$(KERNEL_OBJS) \
@@ -41,7 +60,6 @@ $(KERNEL_OBJS) \
 $(LIBS) \
 
 .PHONY: all clean install install-headers install-kernel
-.SUFFIXES: .o .c .asm   
 
 all: kernel.elf
 
@@ -49,12 +67,13 @@ kernel.elf: $(KERNEL_OBJS) linker.ld
 	$(CC) -o $@ $(CFLAGS) $(LINK_LIST)
 	chmod -x $@
 
-.c.o:
-	$(CC) -c $< -o $@ $(CFLAGS) $(CPPFLAGS)  #Our C compiler should hopefully be i686-elf-gcc --sysroot=?? -isystem=??
+#Our C compiler should hopefully be i686-elf-gcc --sysroot=?? -isystem=??
+#$(info CC = " $(CC) ")
+%.o: %.c
+	$(CC) -c $< -o $@ $(CFLAGS) $(CPPFLAGS) 
 
-.asm.o:
+%.o: %.asm
 	nasm -felf32 $< -o $@ 
-
 
 install: install-headers install-kernel
 

@@ -1,5 +1,5 @@
-#ifndef dadio_h
-#define dadio_h
+#ifndef _KERNEL_TTY_H
+#define _KERNEL_DADIO_H
 
 #include <stdint.h>
 
@@ -25,13 +25,13 @@ enum vga_color {
 
 
 void monitor_puts(char* Message);
-void printhex (uint32_t input);
-void printint (uint32_t input);
-void putc(char input);
+void monitor_putc(char input);
 void set_fg_color(enum vga_color);
 void set_bg_color(enum vga_color);
-void clear();
+void monitor_clrscr();
 char get_monitor_char();
+void printhex (uint32_t input);
+void printint (uint32_t input);
 
 //Asm defined functions
 uint32_t get_cursor();

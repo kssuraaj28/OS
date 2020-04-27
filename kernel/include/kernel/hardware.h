@@ -1,5 +1,5 @@
-#ifndef HARDWARE_H
-#define HARDWARE_H
+#ifndef _KERNEL_HARDWARE_H
+#define _KERNEL_HARDWARE_H
 
 #include<stdbool.h>
 

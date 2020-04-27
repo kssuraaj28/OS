@@ -1,5 +1,6 @@
-#ifndef virtmem_h
-#define virtmem_h
+#ifndef _KERNEL_VIRTMEM_H
+#define _KERNEL_VIRTMEM_H
+
 #include<stdint.h>
 #include<stdbool.h>
 void vmmngr_init();
