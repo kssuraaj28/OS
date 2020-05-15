@@ -71,7 +71,6 @@ void monitor_puts(char* Message)
 	pointer >>= 1;
 	set_cursor(pointer);
 }
-<<<<<<< HEAD:kernel/driver/dadio.c
 /** @brief A function to print hexadecimal numbers
  * @param input	A 32 bit integer to print in hexadecimal 
  * @return Should not return
@@ -118,10 +117,7 @@ void printint(uint32_t input)
  * @param x	A character to print on the screen 
  * @return Should not return
  * */
-void putc(char x)
-=======
 void monitor_putc(char x) 
->>>>>>> Code refactor:kernel/driver/tty.c
 {
 	uint32_t pointer = get_cursor();
 	char* vga_cursor = __VGA_text_memory;
@@ -192,41 +188,4 @@ char get_monitor_char()
 			return (x);
 	}
 }
-
-void printhex(uint32_t input) //These are library functions
-{
-	char buffer[11]  = "0x00000000";
-	uint8_t pointer = 9;
-	for (int i = 0; i < 8; i++)
-	{
-		int c = input & 0xF;
-		if (c < 10)
-			c += 0x30;
-		else
-			c += 55;
-		buffer[pointer] = (char)c;
-		pointer--;
-		input >>= 4;
-	}
-
-	//This is to make the thing smaller
-	pointer = 2;
-	while((buffer[pointer] == '0')&& (pointer < 9)) pointer ++;
-	pointer--;buffer[pointer] = 'x';
-	pointer--;buffer[pointer] = '0';
-	monitor_puts(buffer + pointer);
-}
-
-void printint(uint32_t input)
-{
-	char buffer[11] = "0000000000";
-	for (int i = 0; i < 10; i++)
-	{
-		int temp = input % 10;
-		buffer[10 - i] = (char)(temp + 0x30);
-		input /= 10;
-	}
-	monitor_puts(buffer);
-}
-
 

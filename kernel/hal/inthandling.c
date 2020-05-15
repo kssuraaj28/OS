@@ -204,8 +204,11 @@ void system_call_handler(itrpt_reg_state_t* inp_ptr)  //Kernel-level
 
 	switch(inp_ptr->eax)
 	{
-		case 0:
+		case 0:  //TODO: Perhaps port linux syscall table after VFS is done.
 			monitor_puts((char*)inp_ptr->esi);
+			break;
+		case 1:
+			*(char*)inp_ptr->edi = get_monitor_char();  //Puts the monitor input in location pointed by edi
 			break;
 
 		default:

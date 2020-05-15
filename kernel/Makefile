@@ -20,7 +20,6 @@ CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude/kernel
 LDFLAGS:=$(LDFLAGS) -Tlinker.ld
 LIBS:=$(LIBS) -nostdlib  -lgcc -lk
 
-# TODO: remove all x86.asm
 KERNEL_SOURCES :=  \
 driver/ATA.c \
 driver/PIC.c \
@@ -30,16 +29,17 @@ driver/timer.c \
 driver/cursor.asm \
 mem/virtmem.c \
 mem/phymem.c \
+mem/kheap.c \
 hal/inthandling.c \
 hal/gdt.c \
 hal/tss.c \
-hal/x86.asm \
+hal/hal_asm.asm \
 hal/interruptstubs.asm \
 kernel/init.c \
 kernel/kshell.c \
-kernel/kernel.c \
+kernel/main.c \
 kernel/entry.asm \
-kernel/x86.asm \
+kernel/kernel_asm.asm \
 
 
 KERNEL_OBJS:= ${KERNEL_SOURCES:.c=.o} 

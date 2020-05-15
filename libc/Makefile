@@ -2,7 +2,7 @@ DEFAULT_HOST!=../configure/default-host.sh
 HOST?=$(DEFAULT_HOST)
 HOSTARCH!=../configure/target-triplet-to-arch.sh $(HOST)
 
-CFLAGS?= -g
+CFLAGS?= -g -Werror
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
@@ -13,7 +13,7 @@ EXEC_PREFIX?=$(PREFIX)
 INCLUDEDIR?=$(PREFIX)/include
 LIBDIR?=$(EXEC_PREFIX)/lib
 
-CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -Werror
+CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
 LIBK_CFLAGS:=$(CFLAGS)
 LIBK_CPPFLAGS:=$(CPPFLAGS) -D__is_libk -Iinclude
 CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Iinclude
@@ -28,7 +28,13 @@ string/memmove.c \
 string/memset.c \
 string/strlen.c \
 
-LIBC_SRCS:=$(wildcard */*.c)
+LIBC_SRCS:= \
+string/memcmp.c \
+string/memcpy.c \
+string/memmove.c \
+string/memset.c \
+string/strlen.c \
+syscall.c \
 
 FREEOBJS:=$(LIBK_SRCS:.c=.o)
 HOSTEDOBJS:=$(LIBC_SRCS:.c=.o)
@@ -51,7 +57,9 @@ libc.a: $(OBJS)
 libk.a: $(LIBK_OBJS)
 	$(AR) rcs $@ $(LIBK_OBJS)
 
-#TODO: Add stuff for assembler
+#TODO: Add stuff for assembler and -MD support
+%.o : %.asm
+	nasm -felf32 $< -o $@
 
 %.o : %.c
 	$(CC)  -c $< -o $@  $(CFLAGS) $(CPPFLAGS)

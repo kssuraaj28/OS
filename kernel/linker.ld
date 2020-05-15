@@ -32,8 +32,15 @@ __begin = .;
 		*(.bss)              /* all BSS sections from all files */
 	}
 
+__end = .; 
+
+.vga : ALIGN(4k)
+	{
+	__VGA_text_memory = .;
+	. += 0x20000;
+	}
 . = ALIGN(4k);
-__VGA_text_memory = .;
+__kernel_heap = .;
 
 /*    __bss_end = .;
     __bss_sizeb = __bss_end - __bss_start;        BSS size in bytes 
@@ -44,5 +51,4 @@ __VGA_text_memory = .;
         *(.comment);
     }
 
-     __end = .; 
 }

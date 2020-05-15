@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo apt install build-essential bison flex libgmp3-dev libmpc-dev \
-				libmpfr-dev texinfo 
+				libmpfr-dev texinfo
 
 export TARGET=i686-elf
 export PREFIX="$HOME/opt/cross"
@@ -8,7 +8,7 @@ export PATH="$PREFIX/bin:$PATH"
 
 #if [ ! -d "$HOME/bin" ] ; then
 #	mkdir $HOME/bin
-#fi	
+#fi
 echo "Building OS tools. Patience......."
 mkdir ~/src
 cd ~/src
@@ -40,4 +40,3 @@ make -j4 install-gcc
 make -j4 install-target-libgcc
 
 echo "export PATH=\"\$HOME/opt/cross/bin:\$PATH\"" >> $HOME/.bashrc
-source ~/.bashrc

@@ -1,0 +1,4 @@
+Make appropriate cr* objects in case we want to use C++
+Combine all the mem headers together
+Pull TODOs from all the files
+Keep one script

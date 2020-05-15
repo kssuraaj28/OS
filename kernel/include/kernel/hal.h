@@ -17,7 +17,7 @@ void install_tss(uint32_t address);
 void enable_interrupts();
 void gen_interrupt(uint8_t intnumber);
 void enable_interrupts();
-void monitor_clrscr_interrupts();
+void clr_interrupts();
 void kernel_wait();
 uint32_t get_pdbr();
 void flush_tlb_entry(uint32_t address);

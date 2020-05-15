@@ -7,8 +7,7 @@
 #include<string.h>
 #include<stdio.h>
 #include<tty.h>
-#include<phymem.h>
-#include<virtmem.h>
+#include<mem.h>
 #include<hardware.h>
 #include<hal.h>
 #include<inthandling.h>
@@ -52,13 +51,13 @@ void kmain(uint32_t mmapsize,uint32_t data_sect,uint32_t root_sect,uint32_t fat_
 
 	if(get_monitor_char() == 's') kshell();
 
-	map_page(USERSTACK - PAGE_SIZE,USERSTACK_PHY - PAGE_SIZE,true,true);
-	map_page((uint32_t)__user_begin,virtual_to_physical(__user_begin),true,true);
+//	map_page(USERSTACK - PAGE_SIZE,USERSTACK_PHY - PAGE_SIZE,true,true);
+//	map_page((uint32_t)__user_begin,virtual_to_physical(__user_begin),true,true);
 
 //	switch_to_user((uint32_t*)init);  //TODO: Make this a function pointer instead of uint32_t*
 
 
-	monitor_clrscr_interrupts();
+	clr_interrupts();
 	kernel_wait();
 }
 

@@ -3,7 +3,7 @@ global install_idt
 global install_gdt
 global install_tss
 global enable_interrupts
-global monitor_clrscr_interrupts
+global clr_interrupts
 global kernel_wait
 global get_pdbr
 global flush_tlb_entry
@@ -76,7 +76,7 @@ enable_interrupts:
 	sti
 	ret
 
-monitor_clrscr_interrupts:
+clr_interrupts:
 	cli
 	ret
 
