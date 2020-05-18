@@ -1,6 +1,6 @@
 /**  
- * @file kernel.c
- * @brief ...
+ * @file main.c
+ * @brief Initializes all structures before giving control to user
  * @see 
  */
 #include<stdint.h> 
@@ -13,8 +13,6 @@
 #include<inthandling.h>
 #include<FAT12.h>
 
-#define USERSTACK_PHY 0x40000	/**< Description here */
-#define USERSTACK 0xC0000000	/**< Description here */
 #define PAGE_SIZE 4096			/**< Description here */
 
 //Are all part of /kernel
@@ -49,7 +47,12 @@ void kmain(uint32_t mmapsize,uint32_t data_sect,uint32_t root_sect,uint32_t fat_
 	interrupt_init();
 	tss_kernel_init();
 
+  for(int i=0;i<256;i++)
+    if(!kalloc(10)) monitor_puts("fail");
+
+  kalloc (10);
 	if(get_monitor_char() == 's') kshell();
+
 
 //	map_page(USERSTACK - PAGE_SIZE,USERSTACK_PHY - PAGE_SIZE,true,true);
 //	map_page((uint32_t)__user_begin,virtual_to_physical(__user_begin),true,true);
@@ -60,4 +63,3 @@ void kmain(uint32_t mmapsize,uint32_t data_sect,uint32_t root_sect,uint32_t fat_
 	clr_interrupts();
 	kernel_wait();
 }
-

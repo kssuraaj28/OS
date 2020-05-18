@@ -16,9 +16,6 @@ export BOOTDIR=/boot
 export LIBDIR=$EXEC_PREFIX/lib
 export INCLUDEDIR=$PREFIX/include
 
-export CFLAGS='-g'
-export CPPFLAGS=''
-
 # Configure the cross-compiler to use the desired system root.
 export SYSROOT="$(pwd)/sysroot"
 export CC="$CC --sysroot=$SYSROOT"
@@ -29,7 +26,7 @@ if echo "$HOST" | grep -Eq -- '-elf($|-)'; then
   export CC="$CC -isystem=$INCLUDEDIR"
 fi
 
-echo $CC
+echo $CPPFLAGS
 #Header installation  -- Note why we do headers first and then binaries... It's pretty smart!
 mkdir -p "$SYSROOT"
 

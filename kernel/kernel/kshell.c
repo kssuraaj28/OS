@@ -10,6 +10,7 @@
 #include<stdbool.h>
 #include<hardware.h>
 #include<hal.h>
+#include<mem.h>
 
 #define MAX_COMMAND_SIZE 50		/**< Description here */
 #define MAX_TOKEN_SIZE 25 		/**< Description here */
@@ -33,6 +34,7 @@ static void command_picture();
 static void command_name();
 static void command_ball();
 static void command_quote();
+static void command_kalloc();
 
 //Global variables 
 static char _cmd_buffer[MAX_COMMAND_SIZE];
@@ -131,6 +133,9 @@ static void parse_command()
 	if(string_compare(_tkn_buffer,"quote")){command_quote();return;}
 	if(string_compare(_tkn_buffer,"name")){command_name();return;}
 
+  //Debugging commands
+	if(string_compare(_tkn_buffer,"kalloc")){command_kalloc();return;}
+
 	monitor_puts(" - Command not found: ");
 	monitor_puts(_tkn_buffer);
 }
@@ -181,6 +186,27 @@ static void flush_token_buffer()
 		if (_tkn_buffer[i] == 0) break;
 		_tkn_buffer[i] = 0;
 	}
+}
+
+
+uint32_t atoi(char* string)
+{
+  uint32_t result = 0;
+  char* ptr = string;
+  while(*ptr)
+  {
+    result *=10;
+    result += (uint32_t)*ptr - 0x30;
+    ptr++;
+  }
+  return result;
+}
+static void command_kalloc()
+{
+  extract_token(1);//TODO: Add atoi implementation
+  monitor_puts("kalloc of ");monitor_puts(_tkn_buffer);monitor_puts(" bytes. Address:");
+  uint32_t* buffer = kalloc(atoi(_tkn_buffer));
+  printhex((uint32_t)buffer);
 }
 /** @brief 
  *

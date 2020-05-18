@@ -6,7 +6,6 @@
 /* Don't do a permanent identity map dude
  * Our strategy will be recursive identity map
  * You need this or else you're dead
- * TODO: REMOVE ALLOC PAGE... WE DON'T NEED IT!!
  */
 
 #define BLOCK_SIZE 4096				/**< Description here */
@@ -26,8 +25,8 @@
 static uint32_t* _page_directory = (uint32_t*)0x9C000;  //This is the initial virtual address of the page directory
 
 
-/** Source: BrokenThorn 
-A page table entry is just a 32 bit integer in our case :) */
+// Source: BrokenThorn 
+/**< Page table entry flags */
 enum PAGE_PTE_FLAGS {
 	PTE_PRESENT		=	1,
 	PTE_WRITABLE		=	2,
@@ -41,7 +40,7 @@ enum PAGE_PTE_FLAGS {
 	PTE_LV4_GLOBAL		=	0x200,
    	PTE_FRAME		=	0xFFFFF000 
 };
-/**< Description here */
+/**< Page directory entry flags */
 enum PAGE_PDE_FLAGS {
  
 	PDE_PRESENT		=	1,
@@ -57,8 +56,6 @@ enum PAGE_PDE_FLAGS {
    	PDE_FRAME		=	0xFFFFF000 
 };
 
-//Helper functions
-static void set_recursive_map();   //Sets the virtual address of the page directory to 0xFFFFF000 -- Some kind of dual reference XD
 
 //External linker symbols
 extern uint32_t __begin[];
@@ -67,17 +64,32 @@ extern char  __VGA_text_memory[];  //This is the virtual address of the VGA memo
 extern char __kernel_heap[];
 
 //Implementations
-/** @brief ...
+/** @brief Sets up recursive page tables
+ * 
+ * @return  
+ * */
+static void set_recursive_map()  
+{
+	uint32_t phy_dir = get_pdbr();
+	uint32_t* vir_dir = _page_directory;
+	vir_dir[1023]=phy_dir;
+	vir_dir[1023]|=PDE_PRESENT;
+	vir_dir[1023]|=PDE_WRITABLE;
+	_page_directory = (uint32_t*)PAGE_DIRECTORY; 
+	flush_tlb();
+}
+
+
+/** @brief Initializes good paging support
  *
  * @return  
  * */
 void vmmngr_init() 
 {
-	//Create a new page directory.. Other than 9C000
 	set_recursive_map();
-	//Need to remap video memory...
+
 	if(!map_page(__VGA_text_memory,VGA_TEXT,false,true))
-		for(;;); //monitor_puts("VGA remap failed");  //Keep another debug print
+		for(;;); //monitor_puts("VGA remap failed");  TODO//Keep another debug print
 	if(!map_page((void*)STACK-PAGE_SIZE,STACK_PHY-PAGE_SIZE,false,true))
 		monitor_puts("Stack remap failed");
 	if ((uint32_t)__end - (uint32_t)__begin > (2<<22))  
@@ -85,17 +97,17 @@ void vmmngr_init()
 		monitor_puts("Kernel spans more than 4M");
 		for(;;);
 	}
-	//Need to set all the page frames that are in use by the kernel
+	
 }
-/** @brief ...
+/** @brief Removes the 4M identity map
  * 
  * @return  
  * */
-void remove_identity_map()  //This would remove the 4M identity map
+void remove_identity_map() 
 {
-	//This requires a stack_reset, and gdt reset so far.
+	//This requires a stack_reset, VGA_remap, and gdt reset so far.
 	_page_directory[0] = 0;
-	flush_tlb();  //Clean that boi
+	flush_tlb(); 
 }
 /** @brief Maps a given virtual address to a physical address
  * @param virtual_address 
@@ -145,24 +157,11 @@ bool map_page(void* virtual_address_ptr,uint32_t physical_address,bool isUser,bo
 	flush_tlb_entry(virtual_address);
 	return true;
 }
-/** @brief ...
+
+/** @brief Converts a virtual address into a physical address
+ * @param virt - The virtual address
  * 
- * @return  
- * */
-static void set_recursive_map()   //Sets the virtual address of the page directory to 0xFFFFF000 -- Some kind of dual reference XD
-{
-	uint32_t phy_dir = get_pdbr();
-	uint32_t* vir_dir = _page_directory;
-	vir_dir[1023]=phy_dir;
-	vir_dir[1023]|=PDE_PRESENT;
-	vir_dir[1023]|=PDE_WRITABLE;
-	_page_directory = (uint32_t*)PAGE_DIRECTORY; //Page directory is the last address
-	flush_tlb();
-}
-/** @brief ...
- * @param virt
- * 
- * @return  
+ * @return - The physical address
  * */
 uint32_t virtual_to_physical (uint32_t* virt)
 {
@@ -177,47 +176,20 @@ uint32_t virtual_to_physical (uint32_t* virt)
 	if (!(page_table[pt_index] & PTE_PRESENT)) return 0;
 	return ((page_table[pt_index] & PTE_FRAME) | (virtual_address & ~PTE_FRAME));
 }
+
 /** @brief ...
- * @param table_entry
+ * @param vma The virtual address
  * 
  * @return  
  * */
-
-
-/*
-void free_page(uint32_t* table_entry)  //Makes any entry free
+void free_vma(uint32_t* vma)  //Marks virtual address as not present
 {
-	if(!entry_is_present(*table_entry)) return;
-	uint32_t physical_address = *table_entry & PTE_FRAME;
-	pmmngr_free_block( (uint32_t*) physical_address);
-	entry_toggle_attrib (table_entry,PDE_PRESENT); //This seems like a bad idea?? Not flexible enough
-}*/
+	uint32_t virtual_address = (uint32_t)vma;
+	uint32_t pd_index = virtual_address >> 22;
 
-/*
-static inline void entry_toggle_attrib (uint32_t* e, uint8_t attrib)  //uint8_t or 32? Maybe change this .... 
-{
-	*e ^= attrib;
+	if (!(_page_directory[pd_index] & PDE_PRESENT)) return;
+
+	uint32_t* page_table = (uint32_t*)(PAGE_TABLE | (pd_index<<12)); //This is the virtual address of the page table 
+	uint32_t pt_index = ((virtual_address >> 12) & 0x3FF); //Using recursive page table technique
+	page_table[pt_index] = 0;
 }
-
-static inline void entry_set_frame (uint32_t* e, uint32_t physical_address)
-{
-	*e = (physical_address & PTE_FRAME)|( (*e) & (~PTE_FRAME) );
-}
-
-static inline bool entry_is_present (uint32_t e)
-{
-	return (e & PTE_PRESENT);
-
-}
-static inline bool entry_is_writable (uint32_t e)
-{
-	return (e & PTE_WRITABLE);
-}
-
-
-static inline uint32_t entry_physical (uint32_t e)  //Extract the physical address of the 32 bit entry
-{
-	return (e & PTE_FRAME);
-}
-*/
-

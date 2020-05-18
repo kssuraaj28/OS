@@ -15,6 +15,8 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
+$(info CPPFLAGS = $(CPPFLAGS))
+
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -Werror
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude/kernel
 LDFLAGS:=$(LDFLAGS) -Tlinker.ld
