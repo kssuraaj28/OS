@@ -10,7 +10,7 @@ export PATH="$PREFIX/bin:$PATH"
 #	mkdir $HOME/bin
 #fi
 echo "Building OS tools. Patience......."
-mkdir ~/src
+mkdir -p ~/src
 cd ~/src
 
 wget "https://ftp.gnu.org/gnu/binutils/binutils-2.34.tar.gz"

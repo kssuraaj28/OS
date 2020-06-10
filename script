@@ -1,0 +1,91 @@
+#!/bin/bash
+set -e
+export IS_KSOS=${IS_KSOS:-1}
+export HOST=${HOST:-$(cat "configure/default-host")}
+export PROJECTS=${PROJECTS:-"boot libc kernel"}
+
+export MAKE=${MAKE:-make}
+
+export AR=${HOST}-ar
+export AS=${HOST}-as
+export CC=${HOST}-gcc
+export LD=${HOST}-ld
+
+
+export PREFIX=${PREFIX:-"/usr"}
+export EXEC_PREFIX=${EXEC_PREFIX:-"$PREFIX"}
+export BOOTDIR=${BOOTDIR:-"/boot"}
+export LIBDIR=${LIBDIR:-"$EXEC_PREFIX/lib"}
+export INCLUDEDIR=${INCLUDEDIR:-"$PREFIX/include"}
+
+if [[ $1 == "cross-compiler" ]]; then
+  ./configure/cross-compiler.sh
+  exit
+fi
+
+if ! [[ -z "$IS_KSOS" ]]; then #Use the script elsewhere too
+  # Configure the cross-compiler to use the desired system root.
+  export SYSROOT="${SYSROOT:-"$(pwd)/sysroot"}"
+  export CC="$CC --sysroot=$SYSROOT"
+  # Work around that the -elf gcc targets doesn't have a system include directory
+  # because it was configured with --without-headers rather than --with-sysroot.
+  if echo "$HOST" | grep -Eq -- '-elf($|-)'; then
+    export CC="$CC -isystem=$INCLUDEDIR"
+  fi
+fi
+
+
+headers()
+{
+  mkdir -p "$SYSROOT"
+  for PROJECT in $PROJECTS; do
+    (cd $PROJECT && DESTDIR="$SYSROOT" $MAKE install-headers)  #Defining destdir here
+  done
+}
+
+binary()
+{
+  mkdir -p "$SYSROOT"
+  for PROJECT in $PROJECTS; do
+    (cd $PROJECT && DESTDIR="$SYSROOT" $MAKE install)  #Defining destdir here
+  done
+}
+
+clean()
+{
+  for PROJECT in $PROJECTS; do
+    (cd $PROJECT && $MAKE clean)
+  done
+  rm -rf sysroot
+  rm -rf disk.img
+}
+
+image()
+{
+  truncate disk.img -s 1M
+  mkfs.vfat -F12 -S512 -s1 disk.img
+  dd if=$SYSROOT$BOOTDIR/stage1.bin of=disk.img bs=1 count=3 seek=0 skip=0 conv=notrunc
+  dd if=$SYSROOT$BOOTDIR/stage1.bin of=disk.img bs=1 count=451 seek=62 skip=62 conv=notrunc
+  mcopy -i disk.img $SYSROOT$BOOTDIR/stage2.bin $SYSROOT$BOOTDIR/kernel.bin ::  -D o
+}
+
+debug()
+{
+  headers
+  binary
+  image
+  qemu-system-$(./configure/target-triplet-to-arch.sh $HOST) -drive format=raw,file=disk.img -s &
+  gdb -ex "target remote localhost:1234" -ex "symbol-file kernel/kernel.elf" -ex "b kmain" -ex "continue" 
+}
+
+
+if (( $# == 0 )); then
+  headers
+  binary
+  image
+  qemu-system-$(./configure/target-triplet-to-arch.sh $HOST) -drive format=raw,file=disk.img  -monitor stdio
+else
+  for action in $*; do
+    $action
+  done
+fi

@@ -1,6 +1,6 @@
 # HOST is i686-elf for us. It is the target triplet for the machine that is going to running the executables
 # TODO: Perhaps replace all the kernel.elf with myos.kernel -- That's more beautiful. Also we might want to have an elf loader in the bootloader.
-DEFAULT_HOST!=../configure/default-host.sh
+DEFAULT_HOST!=echo configure/default-host
 HOST?=$(DEFAULT_HOST)
 HOSTARCH!=../configure/target-triplet-to-arch.sh $(HOST)
 
@@ -15,7 +15,6 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
-$(info CPPFLAGS = $(CPPFLAGS))
 
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -Werror
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude/kernel

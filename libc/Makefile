@@ -1,4 +1,4 @@
-DEFAULT_HOST!=../configure/default-host.sh
+DEFAULT_HOST!=echo configure/default-host.sh
 HOST?=$(DEFAULT_HOST)
 HOSTARCH!=../configure/target-triplet-to-arch.sh $(HOST)
 

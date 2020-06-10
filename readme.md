@@ -26,15 +26,15 @@ You would need to install qemu using
 
 Then, since most systems nowadays work on 64 bit, but this OS is 32 bit, we need to build a cross compiler using gcc for 32 bit binaries. If this went over your head, don't worry, a bash script comes along with the repository and you just need to run the script, the rest is handled by the script. Go to the directory where script is stored and run
 
-`./configure/script.sh`
+`./script cross-compiler`
 
 If you don't believe that you need a cross complier, read this: https://wiki.osdev.org/Why_do_I_need_a_Cross_Compiler%3F and think again.
 
 To build the OS, we need to compile the C code, assemble the assembly code, link them, make a file system, copy the kernel to the file system and make the file system bootable. Did you catch all that xD? Thankfully, all of this is done using Makefile and we just need to run a single line
 
-`./run.sh`
+`./script`
 
-And voila!, it creates a disk.img file that you runs using the emulator that we just installed.
+And voila!, it creates a disk.img file that runs using the emulator that we just installed.
 
 To clean the build files, simply './clean.sh'
 
