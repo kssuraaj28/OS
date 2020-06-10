@@ -6,7 +6,7 @@
 #include<stdint.h>
 #include<tty.h>
 #include<hal.h>
-#include<inthandling.h>
+#include<interrupt.h>
 #include<hardware.h>
 
 #define MAX_INTERRUPTS 256	/**< Description here */
@@ -39,28 +39,6 @@ uint8_t			flags;
 uint16_t		baseHi;
 }idt_descriptor_t;
 
-/** Description here */
-typedef struct itrpt_reg_state {
-	seg16_t gs;
-	seg16_t fs;
-	seg16_t es;
-	seg16_t ds;
-
-	reg32_t edi;
-	reg32_t esi;
-	reg32_t ebp;
-	reg32_t esp; //Ignore this
-	reg32_t ebx;
-	reg32_t edx;
-	reg32_t ecx;
-	reg32_t eax;
-
-	uint32_t vector_number;
-	uint32_t error_code;
-	reg32_t eip;
-	seg16_t cs;
-	uint32_t flag;
-}itrpt_reg_state_t;
 
 
 //Global variables in this routine
@@ -68,7 +46,7 @@ static idt_descriptor_t _idt[MAX_INTERRUPTS];
 static idtr_t _idtr;
 
 void default_handler();
-void system_call_handler(itrpt_reg_state_t* inp_ptr);
+void system_call_handler(interrupt_frame_t* inp_ptr);
 void isr0(); void isr1(); void isr2(); void isr3(); void isr4(); void isr5(); void isr6(); void isr7(); void isr8(); 
 void isr9(); void isr10(); void isr11(); void isr12(); void isr13(); void isr14(); void isr15(); void isr16(); 
 void isr17(); void isr18(); void isr19(); void isr20(); void isr21(); void isr22(); void isr23(); void isr24();
@@ -139,7 +117,7 @@ void interrupt_init()
 	enable_interrupts();
 }
 
-/** @brief ...
+/** @brief x86 specific interrupt initialization routine
  * 
  * @return  
  * */
@@ -153,11 +131,11 @@ void install_ir(uint32_t index,uint16_t flags, uint16_t sel, uint32_t* handler_a
 	_idt[index].flags = flags;
 	_idt[index].sel = sel;
 }
-/** @brief ...
+/** @brief A general interrupt handler
  * 
  * @return  
  * */
-void general_interrupt_handler(itrpt_reg_state_t input)
+void general_interrupt_handler(interrupt_frame_t input)
 {
 	switch (input.vector_number)
 	{
@@ -186,7 +164,7 @@ void general_interrupt_handler(itrpt_reg_state_t input)
 			for(;;);
 	}
 }
-/** @brief ...
+/** @brief Debug function
  * 
  * @return  
  * */
@@ -199,7 +177,7 @@ void default_handler()
  * 
  * @return  
  * */
-void system_call_handler(itrpt_reg_state_t* inp_ptr)  //Kernel-level
+void system_call_handler(interrupt_frame_t* inp_ptr)  //Kernel-level
 {
 
 	switch(inp_ptr->eax)
@@ -215,5 +193,4 @@ void system_call_handler(itrpt_reg_state_t* inp_ptr)  //Kernel-level
 			monitor_puts("Welcome to the syscall interface\nSyscall_number:");
 			printhex(inp_ptr->eax);
 	}
-
 }

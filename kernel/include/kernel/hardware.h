@@ -15,7 +15,6 @@ void wait_for_keyboard();
 //ATA
 void read_sectors_ATA_PIO(uint32_t target_address, uint32_t LBA, uint8_t sector_count);
 
-
 //PIC
 void pic_init();
 void send_EOI_master();
@@ -29,9 +28,4 @@ void timer_handler();
 void set_timer(uint16_t delay); 
 void wait_for_timer();
 uint32_t get_tick_count();
-
 #endif
-
-
-
-	
