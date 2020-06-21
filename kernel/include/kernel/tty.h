@@ -1,5 +1,5 @@
 #ifndef _KERNEL_TTY_H
-#define _KERNEL_DADIO_H
+#define _KERNEL_TTY_H
 
 #include <stdint.h>
 

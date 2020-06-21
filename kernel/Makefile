@@ -30,7 +30,8 @@ driver/timer.c \
 driver/cursor.asm \
 mem/virtmem.c \
 mem/phymem.c \
-mem/kheap.c \
+mem/kchunk.c \
+mem/kmem.c \
 hal/inthandling.c \
 hal/gdt.c \
 hal/tss.c \
@@ -41,6 +42,7 @@ kernel/kshell.c \
 kernel/main.c \
 kernel/entry.asm \
 kernel/kernel_asm.asm \
+#mem/kheap.c \
 
 
 KERNEL_OBJS:= ${KERNEL_SOURCES:.c=.o} 

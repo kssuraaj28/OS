@@ -10,7 +10,7 @@
 #include<mem.h>
 #include<hardware.h>
 #include<hal.h>
-#include<inthandling.h>
+#include<interrupt.h>
 #include<FAT12.h>
 
 #define PAGE_SIZE 4096			/**< Description here */
@@ -41,16 +41,11 @@ void kmain(uint32_t mmapsize,uint32_t data_sect,uint32_t root_sect,uint32_t fat_
 	monitor_puts("\nRoot starts: ");printhex(root_sect*512);
 	monitor_puts("\nFAT starts: ");printhex(fat_sect*512);
 
-	refresh_stack(); //This is some next level function: It forces stack remapping, some legend.. Debugging will get confused here
-	remove_identity_map();
+//	refresh_stack(); //This is some next level function: It forces stack remapping, some legend.. Debugging will get confused here
 
 	interrupt_init();
 	tss_kernel_init();
 
-  for(int i=0;i<256;i++)
-    if(!kalloc(10)) monitor_puts("fail");
-
-  kalloc (10);
 	if(get_monitor_char() == 's') kshell();
 
 

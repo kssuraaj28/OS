@@ -4,14 +4,14 @@
 
 section .text
 
-global refresh_stack ;A solution for switching stacks
+global refresh_stack ;A solution for switching stacks  //We can use context switch code for this loollll
 refresh_stack:  ;NEVER STI HERE, WE HAVEN'T ENABLED INTERRUPTS YET
 	mov eax,[esp] ;Return address
 	mov esp,KSTACK
 	mov ebp,KSTACK
 	jmp eax
 
-%ifdef USER
+%if 0
 global switch_to_user
 switch_to_user:
 	cli

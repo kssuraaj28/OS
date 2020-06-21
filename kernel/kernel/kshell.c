@@ -4,8 +4,11 @@
  *	This is meant to be used at level 0
  *  @see 
  */
+//TODO: Remove all the other commands
 //This is a simple kernel level shell that we're gonna be writing, for the most basic UI.
 //This is meant to be used at level 0
+#include <stdlib.h>
+
 #include<tty.h>
 #include<stdbool.h>
 #include<hardware.h>
@@ -17,7 +20,6 @@
 #define MAX_NAME_SIZE 20 		/**< Description here */
 
 //External variables
-extern char __VGA_text_memory[];	/**< Description here */
 //Helper functions
 static void extract_token(int token_no);  //Takes token number n from command and puts it into buffer
 static void parse_command();
@@ -35,6 +37,8 @@ static void command_name();
 static void command_ball();
 static void command_quote();
 static void command_kalloc();
+static void command_kmem();
+static void command_kfree();
 
 //Global variables 
 static char _cmd_buffer[MAX_COMMAND_SIZE];
@@ -135,6 +139,9 @@ static void parse_command()
 
   //Debugging commands
 	if(string_compare(_tkn_buffer,"kalloc")){command_kalloc();return;}
+	if(string_compare(_tkn_buffer,"kmem")){command_kmem();return;}
+	if(string_compare(_tkn_buffer,"kfree")){command_kfree();return;}
+
 
 	monitor_puts(" - Command not found: ");
 	monitor_puts(_tkn_buffer);
@@ -189,24 +196,25 @@ static void flush_token_buffer()
 }
 
 
-uint32_t atoi(char* string)
-{
-  uint32_t result = 0;
-  char* ptr = string;
-  while(*ptr)
-  {
-    result *=10;
-    result += (uint32_t)*ptr - 0x30;
-    ptr++;
-  }
-  return result;
-}
+
 static void command_kalloc()
 {
-  extract_token(1);//TODO: Add atoi implementation
-  monitor_puts("kalloc of ");monitor_puts(_tkn_buffer);monitor_puts(" bytes. Address:");
-  uint32_t* buffer = kalloc(atoi(_tkn_buffer));
+  monitor_puts(" - kalloc of 1 page with address: ");
+  uint32_t* buffer = kernel_chunk_alloc();
   printhex((uint32_t)buffer);
+}
+
+static void command_kfree()
+{
+  extract_token(1);
+  void* address = (void*)atoi(_tkn_buffer);
+  kernel_chunk_free(address);
+  monitor_puts(" - freed page");
+}
+
+static void command_kmem()
+{
+  monitor_puts("kmem starts at: "); printhex((uint32_t)kmem.start);monitor_puts(" with size: "); printhex(kmem.size);
 }
 /** @brief 
  *
@@ -287,7 +295,7 @@ static void command_fresh()
 	set_bg_color(color[1]);
 }
 
-/** @brief A function to change the syaytem timer speed
+/** @brief A function to change the system timer speed
  *
  * @return  
  * */

@@ -1,4 +1,6 @@
-//This is my implementation of a kernel heap. It is a bunch of virtual memory "filled" with physical addresses.
+//This is my implementation of a kernel heap. It is a bunch of virtual memory "filled" with physical addresses. 
+//
+// TODO: THIS IS NOT INCLUDED, i.e. It is not compiled
 
 //Note: every address in the heap needs to be accounted for by the linked list!!! The "useful" entries, will be the only ones part of the linked list. TODO: Extend heap entry pool using linked list
 #include <stdint.h>
@@ -10,7 +12,6 @@
 #include <mem.h>
 #include <tty.h>
 
-#define PAGE_SIZE 4096
 #define MAX_HEAP_SIZE 0x400000 //4M for now 
 #define STANDARD_INCREASE 16 //Increases the size of the heap by 16 pages
 #define MIN_ALLOC_SIZE 16 //A kalloc will give you min 16 bytes!!
@@ -32,7 +33,7 @@ typedef struct _heap_entry
     struct _heap_entry* prev_entry;
 }heap_entry;
 
-typedef struct _heap
+typedef struct _heap //TODO: separate kmem from heap
 {
     //Static stuff
 //  uint32_t max_entry_count;
@@ -56,6 +57,7 @@ typedef struct _heap_entry_pool
 
 }heap_entry_pool;
 
+not compilable
 
 //Compile time structures
 static heap_entry_pool static_pool;

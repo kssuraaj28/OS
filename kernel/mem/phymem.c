@@ -3,7 +3,7 @@
  * @brief ...
  * @see 
  */
-// Standard includes TODO: Fine grain special blocks
+// Standard includes TODO: Fine grain special blocks, Remove the toggle and get dirty?
 #include<stdint.h> 
 #include<stdbool.h>
 #include<mem.h>
@@ -12,15 +12,13 @@
 // Constant definitions:
 #define MEM_SIZE 0x100000000			/**< Size of physical memory */
 #define PMMAP 0x1000				/**< Description here */
-#define KERNEL_P 0x100000			/**< Description here */
+#define KERNEL_P 0x100000			/**< Description here */ //TODO: Get all this from bootloader
 #define BLOCK_SIZE 4096				/**< Description here */
 #define BLOCK_SIZE_B 12				/**< Description here */
 #define BITS_PER_UINT32_B 5			/**< 32 Bits per int */
 
 
 
-// External variables:
-extern uint32_t __begin[], __end[]; 
 
 // Routines internal to object:
 static void pmmngr_toggle_range(uint32_t start,uint32_t end);

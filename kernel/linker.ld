@@ -39,6 +39,7 @@ __end = .;
 	__VGA_text_memory = .;
 	. += 0x20000;
 	}
+
 . = ALIGN(4k);
 __kernel_heap = .;
 

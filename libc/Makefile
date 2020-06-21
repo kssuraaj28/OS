@@ -22,6 +22,7 @@ LIBK_SRCS:=\
 stdio/putchar.c \
 stdio/puts.c \
 stdlib/abort.c \
+stdlib/atoi.c \
 string/memcmp.c \
 string/memcpy.c \
 string/memmove.c \
@@ -29,6 +30,8 @@ string/memset.c \
 string/strlen.c \
 
 LIBC_SRCS:= \
+stdlib/abort.c \
+stdlib/atoi.c \
 string/memcmp.c \
 string/memcpy.c \
 string/memmove.c \
@@ -75,7 +78,7 @@ clean:
 
 install: install-headers install-libs
 
-install-headers:
+install-headers: 
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 

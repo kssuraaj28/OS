@@ -9,12 +9,9 @@
  */
 
 #define BLOCK_SIZE 4096				/**< Description here */
-#define PAGE_TABLE 0xFFC00000		/**< Description here */
-#define PAGE_DIRECTORY 0xFFFFF000	/**< Description here */
 #define STACK 0xFFC00000			/**< Description here */
 #define STACK_PHY 0x90000			/**< Description here */
 #define VGA_TEXT 0xB8000			/**< Description here */
-#define PAGE_SIZE (1<<12)			/**< Description here */
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -56,13 +53,6 @@ enum PAGE_PDE_FLAGS {
    	PDE_FRAME		=	0xFFFFF000 
 };
 
-
-//External linker symbols
-extern uint32_t __begin[];
-extern uint32_t __end[];
-extern char  __VGA_text_memory[];  //This is the virtual address of the VGA memory
-extern char __kernel_heap[];
-
 //Implementations
 /** @brief Sets up recursive page tables
  * 
@@ -99,16 +89,7 @@ void vmmngr_init()
 	}
 	
 }
-/** @brief Removes the 4M identity map
- * 
- * @return  
- * */
-void remove_identity_map() 
-{
-	//This requires a stack_reset, VGA_remap, and gdt reset so far.
-	_page_directory[0] = 0;
-	flush_tlb(); 
-}
+
 /** @brief Maps a given virtual address to a physical address
  * @param virtual_address 
  *
